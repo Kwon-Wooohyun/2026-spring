@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ELLADIN{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="{{ url_for('main.index') }}" class="logo">ELLADIN</a>
+
+      <form class="search-form" action="{{ url_for('main.search') }}" method="GET">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" name="q" placeholder="작품명 또는 저자 검색…" value="{{ request.args.get('q', '') }}">
+        </div>
+      </form>
+
+      <div class="header-right">
+        {% if user %}
+          <span class="header-nick">{{ user.nickname }}</span>
+          <a href="{{ url_for('main.logout') }}" class="btn-logout">로그아웃</a>
+          <a href="{{ url_for('main.write') }}" class="btn-write">리뷰 작성</a>
+        {% else %}
+          <a href="{{ url_for('main.login') }}" class="btn-logout">로그인</a>
+          <a href="{{ url_for('main.register') }}" class="btn-logout">회원가입</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="site-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <p>ELLADIN — 영문학 리뷰 아카이브</p>
+  </footer>
+
+</body>
+</html>

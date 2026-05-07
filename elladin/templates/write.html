@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block title %}{{ '리뷰 수정' if review else '리뷰 작성' }} — ELLADIN{% endblock %}
+
+{% block content %}
+<section class="write-section">
+  <div class="write-header">
+    <h1>{{ '리뷰 수정' if review else '리뷰 작성' }}</h1>
+    <p>{{ '작성하신 리뷰를 수정해보세요.' if review else '읽은 작품에 대한 감상을 남겨보세요.' }}</p>
+  </div>
+
+  <form class="write-form"
+        action="{{ url_for('main.edit', review_id=review.id) if review else url_for('main.write') }}"
+        method="POST" enctype="multipart/form-data">
+
+    <div class="form-row two-col">
+      <div class="form-group">
+        <label for="title">작품 제목 <span class="req">*</span></label>
+        <input type="text" id="title" name="title" placeholder="e.g. Pride and Prejudice"
+               value="{{ review.title if review else '' }}" required>
+      </div>
+      <div class="form-group">
+        <label for="author">저자 <span class="req">*</span></label>
+        <input type="text" id="author" name="author" placeholder="e.g. Jane Austen"
+               value="{{ review.author if review else '' }}" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>종류 <span class="req">*</span></label>
+      <div class="genre-options">
+        {% for g in ['시', '소설', '희곡', '기타'] %}
+        <label class="genre-radio">
+          <input type="radio" name="genre" value="{{ g }}"
+            {% if review and review.genre == g %}checked
+            {% elif not review and g == '소설' %}checked{% endif %}>
+          <span>{{ g }}</span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-row two-col">
+      <div class="form-group">
+        <label>난이도 <span class="req">*</span></label>
+        <div class="star-picker">
+          {% for i in range(5, 0, -1) %}
+<input type="radio" name="star_difficulty" id="diff{{ i }}" value="{{ i }}"
+  {% if review and review.star_difficulty == i %}checked
+  {% elif not review and i == 3 %}checked{% endif %}>
+<label for="diff{{ i }}">★</label>
+{% endfor %}
+        </div>
+      </div>
+      <div class="form-group">
+        <label>읽을가치 <span class="req">*</span></label>
+        <div class="star-picker">
+          {% for i in range(5, 0, -1) %}
+<input type="radio" name="star_worth" id="worth{{ i }}" value="{{ i }}"
+  {% if review and review.star_worth == i %}checked
+  {% elif not review and i == 3 %}checked{% endif %}>
+<label for="worth{{ i }}">★</label>
+{% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="content">리뷰 <span class="req">*</span></label>
+      <textarea id="content" name="content" maxlength="500"
+                placeholder="작품에 대한 감상을 자유롭게 적어주세요. (500자 이내)"
+                required>{{ review.content if review else '' }}</textarea>
+      <div class="char-counter"><span id="char-count">{{ review.content|length if review else 0 }}</span> / 500</div>
+    </div>
+
+    <div class="form-group">
+      <label>관련 자료 <span class="optional">(선택)</span></label>
+      {% if review and review.filename %}
+      <div class="current-file">현재 첨부: {{ review.filename }}</div>
+      {% endif %}
+      <div class="file-drop" id="file-drop">
+        <input type="file" id="attachment" name="attachment" accept=".pdf,.docx,.hwp">
+        <div class="file-drop-inner">
+          <p id="file-label">PDF, DOCX, HWP 파일을 첨부하세요</p>
+          <span class="file-hint">클릭하거나 파일을 여기에 드래그하세요</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('main.index') }}" class="btn-cancel">취소</a>
+      <button type="submit" class="btn-submit">{{ '수정 완료' if review else '리뷰 등록' }}</button>
+    </div>
+  </form>
+</section>
+
+<script>
+  const ta = document.getElementById('content');
+  const cc = document.getElementById('char-count');
+  ta.addEventListener('input', () => { cc.textContent = ta.value.length; });
+
+  const drop = document.getElementById('file-drop');
+  const input = document.getElementById('attachment');
+  const label = document.getElementById('file-label');
+  drop.addEventListener('click', () => input.click());
+  input.addEventListener('change', () => {
+    if (input.files[0]) { label.textContent = input.files[0].name; drop.classList.add('has-file'); }
+  });
+</script>
+{% endblock %}

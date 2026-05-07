@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}ELLADIN — 영문학 리뷰{% endblock %}
+
+{% block content %}
+<section class="reviews-section">
+  <div class="section-header">
+    <h2>최근 리뷰</h2>
+    <span class="count">{{ reviews|length }}편</span>
+  </div>
+
+  {% if reviews %}
+  <div class="review-grid">
+    {% for review in reviews %}
+    <article class="review-card" id="review-{{ review.id }}"
+         onclick="location.href='{{ url_for('main.review_detail', review_id=review.id) }}'"
+         style="cursor:pointer;">
+      <div class="card-top">
+        <span class="genre-tag genre-{{ review.genre }}">{{ review.genre }}</span>
+        <time class="card-date">{{ review.created_at.strftime('%Y.%m.%d') }}</time>
+      </div>
+      <h3 class="card-title">{{ review.title }}</h3>
+      <p class="card-author">— {{ review.author }}</p>
+      <div class="stars-row">
+        <div class="star-item">
+          <span class="star-label">난이도</span>
+          <span class="stars">
+            {% for i in range(1, 6) %}
+              <span class="star {% if i <= review.star_difficulty %}on{% endif %}">★</span>
+            {% endfor %}
+          </span>
+        </div>
+        <div class="star-item">
+          <span class="star-label">읽을가치</span>
+          <span class="stars">
+            {% for i in range(1, 6) %}
+              <span class="star {% if i <= review.star_worth %}on{% endif %}">★</span>
+            {% endfor %}
+          </span>
+        </div>
+      </div>
+      <p class="card-content">{{ review.content }}</p>
+      {% if review.filename %}
+      <a href="{{ url_for('main.download', filename=review.filename) }}" class="card-file" onclick="event.stopPropagation()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        {{ review.filename }} ↓
+      </a>
+      {% endif %}
+
+      <!-- 공감 & 수정/삭제 -->
+      <div class="card-actions">
+        <form action="{{ url_for('main.like', review_id=review.id) }}" method="POST">
+          <button type="submit" class="btn-like">
+            ♥ 공감 {{ review.likes|length }}
+          </button>
+        </form>
+        <button class="btn-comment-toggle" onclick="toggleComment({{ review.id }})">
+          💬 댓글 {{ review.comments|length }}
+        </button>
+        <div class="card-edit-actions">
+          <a href="{{ url_for('main.edit', review_id=review.id) }}" class="btn-edit">수정</a>
+          <form action="{{ url_for('main.delete', review_id=review.id) }}" method="POST"
+                onsubmit="return confirm('정말 삭제할까요?')">
+            <button type="submit" class="btn-delete">삭제</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 댓글 -->
+      <div class="comment-section" id="comments-{{ review.id }}" style="display:none;">
+        {% if review.comments %}
+        <ul class="comment-list">
+          {% for c in review.comments %}
+          <li class="comment-item">
+            <span class="comment-nick">{{ c.nickname }}</span>
+            <span class="comment-text">{{ c.content }}</span>
+            <time class="comment-date">{{ c.created_at.strftime('%m.%d') }}</time>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+        <form class="comment-form" action="{{ url_for('main.comment', review_id=review.id) }}" method="POST">
+          <input type="text" name="nickname" placeholder="닉네임" maxlength="20">
+          <input type="text" name="content" placeholder="댓글을 입력하세요…" maxlength="300" required>
+          <button type="submit">등록</button>
+        </form>
+      </div>
+
+    </article>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <p class="empty-icon">📖</p>
+    <p class="empty-text">아직 작성된 리뷰가 없어요.</p>
+    <a href="{{ url_for('main.write') }}" class="btn-write">첫 리뷰 남기기</a>
+  </div>
+  {% endif %}
+</section>
+
+<script>
+function toggleComment(id) {
+  const el = document.getElementById('comments-' + id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}
