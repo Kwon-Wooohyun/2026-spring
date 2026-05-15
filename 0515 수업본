@@ -1,0 +1,36 @@
+행렬: 직사각형
+백터: 한줄, 숫자열(ex. 4 x 1, 1 x 3), a sequence of numbers
+scalar행렬: 1x1행렬
+
+백터는 그 크기만큼의 차원에서 한 점으로 표현될 수 있다.
+두 백터의 계산: 평행사변형을 만들어서 생긴 점
+inner, outer, tensor product
+
+inner = dot = scalar product
+a = [2, 3]
+b = [3, 0]
+algebric: a*b
+geometric: lablcos(x) (x는 백터a,b가 이루는 각), a,b는 각각 원점까지의 거리
+-> 두 백터가 이루는 각이 좁을수록 유사성/값이 높음
+
+correlation = cosine similarity
+사인파를 평행이동해도 cor값이 1이 나옴
+
+Linear transformation
+a x b행렬은 b x c행렬로만 곱할 수 있음
+입력백터 -> 출력백터로 transformation
+
+1 0
+0 1 의 행렬은 백터값을 유지 (정사각형 그리드)
+행렬값을 바꿈으로써 그리드가 바뀜 -> 백터값도 바뀜 / 그리드가 사각형이 아닌 선일수도 있음
+
+detransformation(역행렬)
+출력백터-> 입력백터로 돌아가기(원상복구)
+1차원 -> 2차원으로 복원? -> not invertible(역행렬 없음)
+
+Eigenvectors
+조건: 정사각형 행렬
+Eigenvalue: 몇배를 해야 하는가
+Ax = hx
+x: Eigenvector, h: Eigenvalue
+-> visualizing eigenvectors 사이트
