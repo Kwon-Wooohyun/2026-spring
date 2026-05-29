@@ -1,0 +1,36 @@
+함수: 입력 + 출력
+humans as functions
+speech to text(input - function - output)
+<-> tts
+LLM(Large Language Model)
+data: image, speech, text-> data should be vectorized
+vector = data visualization / 백터 길이의 차원만큼의 공간에서 점으로 표현 가능
+두 점에서 각각 원점에 그은 선분이 이루는 각이 작을수록 코사인값이 높고 유사도가 높음
+AI: in/out이 vector이다
+
+function에 들어가는 행렬이 많아진다. -> 깊어진다(deep learning)
+행렬에 있는 숫자 하나=parameter
+
+input -> output 에서 원하는 값이 나오도록 행렬값을 바꿔야 함(미분을 이용하면 편함) 
+-> 더이상 행렬값이 바뀌지 않으면 학습 완료
+이러한 AI들의 예시들
+tts: elevenlabs
+image recognition: google lens
+generation: dallE
+
+평가요소: accuracy + speed
+
+unlearn: 
+크라센의 입력 가설: 학습자 수준보다 살짝 높게 학습해라
+롱의 상호작용 가설: 원어민과 대화하며 그게 무슨 뜻인지 묻기
+브린의 교실 내 의미 협상: 학습자들끼리 교실 내에서 의사소통 맥락을 만들어 가야 한다.
+
+AI의 방향성에 대한 견해
+팔란티어: 인간의 개입이 필요하다, workflow system / train on rails, 규칙 위주
+<-> 엔트로픽: agentic AI system / 하나의 LLM으로 loop / driverless car / 자율성 부여
+
+예시
+case1. 팔란티어: 군 자산을 그래프화(edge, node로 구성된) -> LLM에 인계
+edge(용언), node(체언)
+
+case2. 온톨로지 없이 일반적인 LLM에게만 권한 부여
