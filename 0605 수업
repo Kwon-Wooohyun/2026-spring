@@ -1,0 +1,26 @@
+저번시간 간단하게 복습
+llm; agent
+FDE: forward deployed engineer / 팔란티어 / workflow
+단점: 시간과 비용 / 그러나 사용하는 이유: LLM이 똑똑하지 않아서
+
+<-> Agentic AI: designed by planner LLM / loop기반 시스템
+
+파인튜닝: 기존의 AI모델에 추가적으로 데이터를 학습시켜 모델의 가중치(weight)를 바꾸는 기술
+Embedding: 인간의 언어나 이미지를 AI가 계산할 수 있도록 백터로 변환하는 기술
+RLHF(Reinforcement learning by human feedback): 인간이 개입하여 피드백
+Overfitting: 특정 상황에만 맞게 과도하게 학습되어, 다른 상황에 적용하기 어려워짐
+
+클라이언트: 서비스를 요청하는 사용자 기기
+서버: 데이터를 저장하는 대형 컴퓨터
+클라우드 컴퓨팅: 서버 컴퓨터 서비스(아마존, 마이크로소프트)
+
+PaaS: Platform as a Service
+온프레미스: 자체적으로 데이터 서버 구축
+프론트엔드: 클라이언트 / html, css
+백엔드: 서버 / java, python
+
+UI/ UX: 화면의 시각적 요소/ 사용자의 종합적 경험
+정형(엑셀)/비정형(텍스트,이미지)
+PM: 토큰 가성비, 레이턴시, AI 에발스
+
+Human in the loop: 인간의 개입
