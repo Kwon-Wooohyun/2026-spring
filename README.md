@@ -1,2 +1,2 @@
-http://127.0.0.1:5000/ 바로가기
-영문학 리뷰 사이트 ELLADIN
+https://Kwon-Wooohyun.github.io/2026-spring/index_firebase.html
+kbo(프로야구)모의 주식 거래소 KBOstock
