@@ -742,12 +742,17 @@ window._deleteComment=_deleteComment;
 
 // ── 종목 리스트 ───────────────────────────────────────
 function renderStocks(){
+  if(!allStocks||!allStocks.length) return;
   const search=document.getElementById('search-input').value.trim();
+  // 검색어 있으면 포지션/팀/스탯 필터 무시하고 전체에서 검색
   const list=allStocks.filter(s=>
+    search
+    ? s.playerName.includes(search)
+    : (
     (filters.pos==='all'||s.position===filters.pos)&&
     (filters.team==='all'||s.team===filters.team)&&
     (filters.stat==='all'||s.stat===filters.stat)&&
-    (!search||s.playerName.includes(search))
+    true)
   );
   const wrap=document.getElementById('stock-list');
   if(!list.length){wrap.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔍</div><div>조건에 맞는 종목이 없습니다</div></div>`;return;}
