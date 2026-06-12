@@ -269,7 +269,10 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-
       <div class="filter-bar">
         <div class="filter-section">
           <div class="filter-title">선수 검색</div>
-          <input type="text" class="search-input" id="search-input" placeholder="이름 입력..." oninput="renderStocks()">
+          <div style="display:flex;gap:6px;">
+              <input type="text" class="search-input" id="search-input" placeholder="선수 이름 검색..." oninput="searchPlayer()" onkeydown="if(event.key==='Escape')clearSearch()">
+              <button onclick="clearSearch()" style="padding:8px 10px;background:var(--surface3);border:none;border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;" title="초기화">✕</button>
+            </div>
         </div>
         <div class="filter-section">
           <div class="filter-title">포지션</div>
@@ -554,6 +557,9 @@ function loadStocks(){
     `최신화: ${upd.getMonth()+1}/${upd.getDate()} ${upd.getHours()}:${String(upd.getMinutes()).padStart(2,'0')}`;
   loadTeams();
   renderStocks();
+  // 검색창 이벤트 확실히 바인딩
+  const si=document.getElementById('search-input');
+  if(si) si.addEventListener('input', ()=>{ if(allStocks&&allStocks.length) renderStocks(); });
 }
 
 function loadTeams(){
@@ -743,17 +749,13 @@ window._deleteComment=_deleteComment;
 // ── 종목 리스트 ───────────────────────────────────────
 function renderStocks(){
   if(!allStocks||!allStocks.length) return;
-  const search=document.getElementById('search-input').value.trim();
-  // 검색어 있으면 포지션/팀/스탯 필터 무시하고 전체에서 검색
-  const list=allStocks.filter(s=>
-    search
-    ? s.playerName.includes(search)
-    : (
-    (filters.pos==='all'||s.position===filters.pos)&&
-    (filters.team==='all'||s.team===filters.team)&&
-    (filters.stat==='all'||s.stat===filters.stat)&&
-    true)
-  );
+  const search=document.getElementById('search-input')?document.getElementById('search-input').value.trim():'';
+  const list=allStocks.filter(s=>{
+    if(search) return s.playerName.includes(search);
+    return (filters.pos==='all'||s.position===filters.pos)
+      &&(filters.team==='all'||s.team===filters.team)
+      &&(filters.stat==='all'||s.stat===filters.stat);
+  });
   const wrap=document.getElementById('stock-list');
   if(!list.length){wrap.innerHTML=`<div class="empty-state"><div class="empty-state-icon">🔍</div><div>조건에 맞는 종목이 없습니다</div></div>`;return;}
   wrap.innerHTML=list.map(s=>{
@@ -1031,6 +1033,17 @@ async function doChangeNickname(){
   }catch(e){errEl.textContent='변경 실패: '+e.message;}
 }
 
+
+// ── 선수 검색 ──────────────────────────────────────────
+function searchPlayer(){
+  if(!allStocks||!allStocks.length) return;
+  renderStocks();
+}
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  renderStocks();
+}
+
 // ── window 에 onclick용 함수 노출 ────────────────────
 window.openAuthModal=openAuthModal;
 window.closeAuthModal=closeAuthModal;
@@ -1051,6 +1064,8 @@ window.loadChart=loadChart;
 window.openNicknameModal=openNicknameModal;
 window.closeNicknameModal=closeNicknameModal;
 window.doChangeNickname=doChangeNickname;
+window.searchPlayer=searchPlayer;
+window.clearSearch=clearSearch;
 
 // ── 초기화 ────────────────────────────────────────────
 loadStocks();
