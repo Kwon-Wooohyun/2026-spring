@@ -243,6 +243,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('market',this)">📈 시장</button>
   <button class="tab-btn" onclick="switchTab('portfolio',this)">💼 포트폴리오</button>
+  <button class="tab-btn" onclick="switchTab('quiz',this)">🧠 퀴즈 도전</button>
 </div>
 
 <div class="main-wrap">
@@ -327,6 +328,82 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-
     </div>
   </div>
 </div>
+
+  <!-- 퀴즈 탭 -->
+  <div id="tab-quiz" class="tab-panel">
+    <div style="background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 12px 12px 12px;padding:32px;box-shadow:0 2px 12px rgba(0,0,0,.3);min-height:400px;">
+
+      <!-- 난이도 선택 화면 -->
+      <div id="quiz-select">
+        <div style="text-align:center;margin-bottom:32px;">
+          <div style="font-size:48px;margin-bottom:12px;">🧠</div>
+          <div style="font-family:var(--fd);font-size:24px;font-weight:700;margin-bottom:8px;">야구 상식 퀴즈</div>
+          <div style="color:var(--text2);font-size:14px;">문제를 맞추면 상금을! 틀리면 차감됩니다.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;max-width:620px;margin:0 auto 24px;">
+          <div onclick="startQuiz('easy')" class="quiz-diff-card" style="background:var(--surface2);border:2px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#34c759';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="font-size:36px;margin-bottom:10px;">🟢</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:6px;">초급</div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">야구 기초 규칙</div>
+            <div style="font-size:18px;font-weight:700;color:#34c759;">±100,000원</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;">문제당</div>
+          </div>
+          <div onclick="startQuiz('medium')" class="quiz-diff-card" style="background:var(--surface2);border:2px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#ff9f0a';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="font-size:36px;margin-bottom:10px;">🟡</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:6px;">중급</div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">심화 규칙·기록</div>
+            <div style="font-size:18px;font-weight:700;color:#ff9f0a;">±300,000원</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;">문제당</div>
+          </div>
+          <div onclick="startQuiz('hard')" class="quiz-diff-card" style="background:var(--surface2);border:2px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#ff3b30';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+            <div style="font-size:36px;margin-bottom:10px;">🔴</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:6px;">상급</div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">고급 규칙·판정</div>
+            <div style="font-size:18px;font-weight:700;color:#ff3b30;">±500,000원</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;">문제당</div>
+          </div>
+        </div>
+        <div id="quiz-login-msg" style="display:none;text-align:center;color:var(--text2);font-size:13px;padding:12px;background:var(--surface2);border-radius:10px;max-width:400px;margin:0 auto;cursor:pointer;" onclick="openAuthModal('login')">🔒 로그인하면 퀴즈 상금이 실제로 지급됩니다</div>
+      </div>
+
+      <!-- 문제 풀기 화면 -->
+      <div id="quiz-play" style="display:none;max-width:700px;margin:0 auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <div id="quiz-level-badge" style="font-size:12px;font-weight:700;padding:4px 14px;border-radius:20px;"></div>
+          <div style="font-family:var(--fm);font-size:13px;color:var(--text2);">Q<span id="quiz-qnum">1</span> / 10</div>
+          <div id="quiz-score-badge" style="font-family:var(--fm);font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px;background:var(--surface2);"></div>
+        </div>
+        <div style="height:4px;background:var(--surface3);border-radius:2px;margin-bottom:24px;overflow:hidden;">
+          <div id="quiz-progress-bar" style="height:100%;background:var(--accent);border-radius:2px;transition:width .4s;width:10%;"></div>
+        </div>
+        <div id="quiz-question" style="font-size:16px;font-weight:600;line-height:1.8;margin-bottom:22px;color:var(--text);background:var(--surface2);border-radius:12px;padding:18px 20px;"></div>
+        <div id="quiz-options" style="display:grid;gap:10px;"></div>
+        <div id="quiz-result" style="display:none;margin-top:20px;padding:20px;border-radius:12px;">
+          <div id="quiz-result-title" style="font-size:18px;font-weight:700;margin-bottom:10px;"></div>
+          <div id="quiz-result-explain" style="font-size:14px;color:var(--text2);line-height:1.8;"></div>
+          <div style="display:flex;gap:10px;margin-top:18px;">
+            <button id="quiz-next-btn" onclick="nextQuestion()" style="flex:1;padding:13px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-family:var(--fd);font-size:15px;font-weight:600;cursor:pointer;">다음 문제 →</button>
+            <button onclick="endQuiz()" style="padding:13px 20px;background:var(--surface3);border:none;border-radius:10px;color:var(--text2);font-family:var(--fd);font-size:14px;cursor:pointer;">종료하기</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 종료 화면 -->
+      <div id="quiz-end" style="display:none;text-align:center;max-width:500px;margin:0 auto;padding:20px;">
+        <div style="font-size:56px;margin-bottom:16px;" id="quiz-end-emoji">🎉</div>
+        <div style="font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:8px;" id="quiz-end-title"></div>
+        <div style="color:var(--text2);font-size:14px;margin-bottom:24px;" id="quiz-end-sub"></div>
+        <div style="background:var(--surface2);border-radius:14px;padding:24px;margin-bottom:24px;">
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">이번 퀴즈 수익</div>
+          <div style="font-family:var(--fm);font-size:40px;font-weight:700;margin-bottom:4px;" id="quiz-end-amount"></div>
+          <div style="font-size:12px;color:var(--text3);" id="quiz-end-detail"></div>
+        </div>
+        <button onclick="goHome()" style="width:100%;padding:14px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:var(--fd);font-size:16px;font-weight:600;cursor:pointer;">🏠 홈으로 돌아가기</button>
+      </div>
+
+    </div>
+  </div>
+
 
 <div class="overlay" id="overlay" onclick="closeDetail()"></div>
 <div class="detail-panel" id="detail-panel">
@@ -506,6 +583,15 @@ function switchTab(tab,btn){
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
   if(tab==='portfolio') loadPortfolio();
+  if(tab==='quiz'){
+    const msg = document.getElementById('quiz-login-msg');
+    if(msg) msg.style.display = currentUser?'none':'block';
+    // 퀴즈 진행 중이 아닐 때만 선택 화면 표시
+    if(document.getElementById('quiz-play').style.display==='none'&&
+       document.getElementById('quiz-end').style.display==='none'){
+      document.getElementById('quiz-select').style.display='block';
+    }
+  }
 }
 
 // ── 모버스 (인라인 데이터 기반) ──────────────────────
@@ -969,13 +1055,18 @@ function renderPortfolio(pf){
   if(!pf.history||!pf.history.length){
     hiw.innerHTML=`<div style="color:var(--text3);font-size:13px;padding:12px">거래 내역이 없습니다.</div>`;
   }else{
-    hiw.innerHTML=[...pf.history].reverse().map(h=>`
-      <div class="history-row">
+    hiw.innerHTML=[...pf.history].reverse().map(h=>{
+      const isQuiz = h.action==='quiz_win'||h.action==='quiz_lose';
+      const actionLabel = isQuiz?(h.action==='quiz_win'?'퀴즈🏆':'퀴즈💸'):(h.action==='buy'?'매수':'매도');
+      const actionClass = (h.action==='buy'||h.action==='quiz_win')?'pos':'neg';
+      const amtSign = h.action==='quiz_win'?'+':h.action==='quiz_lose'?'-':(h.action==='buy'?'-':'+');
+      const detail = isQuiz?(h.memo||''):`${h.stockId} ${h.qty}주`;
+      return `<div class="history-row">
         <span class="history-time">${h.time}</span>
-        <span class="history-action ${h.action==='buy'?'pos':'neg'}">${h.action==='buy'?'매수':'매도'}</span>
-        <span class="history-stock">${h.stockId} ${h.qty}주</span>
-        <span class="history-amt">${fmt(h.total)}원</span>
-      </div>`).join('');
+        <span class="history-action ${actionClass}">${actionLabel}</span>
+        <span class="history-stock">${detail}</span>
+        <span class="history-amt">${amtSign}${fmt(h.total)}원</span>
+      </div>`;}).join('');
   }
 }
 
@@ -1044,6 +1135,206 @@ function clearSearch(){
   renderStocks();
 }
 
+
+// ── 퀴즈 데이터 ───────────────────────────────────────
+const QUIZ_DATA = {
+  easy: [
+    {q:"야구에서 한 팀의 선발 라인업에 들어가는 타자는 총 몇 명일까요?",opts:["7명","9명","11명","15명"],ans:1,ex:"야구는 기본적으로 한 팀당 9명의 선수가 필드에 나서며, 타석에도 9명의 타자가 순서대로 들어섭니다."},
+    {q:"투수가 던진 공을 타자가 치지 못하거나, 스트라이크 존 안으로 들어온 공을 그냥 지켜봤을 때 선언되는 것은?",opts:["볼 (Ball)","아웃 (Out)","스트라이크 (Strike)","세이프 (Safe)"],ans:2,ex:"스트라이크 존을 통과한 공을 치지 않거나, 존과 상관없이 배트를 휘둘러서 맞추지 못하면 스트라이크가 선언됩니다."},
+    {q:"타자가 투수의 공을 쳐서 담장을 넘겼을 때, 모든 주자와 타자가 홈으로 들어와 점수를 내는 상황은?",opts:["홈런 (Home Run)","도루 (Steal)","번트 (Bunt)","안타 (Hit)"],ans:0,ex:"공이 외야 담장을 넘어가는 홈런이 나오면 타자와 베이스에 있던 주자들은 아무런 방해 없이 홈까지 걸어 들어와 득점합니다."},
+    {q:"한 이닝(Inning)에서 수비 팀이 아웃을 몇 개 잡아내야 공격과 수비가 바뀔까요?",opts:["1개","2개","3개","4개"],ans:2,ex:"수비 팀이 아웃카운트 3개를 잡으면 해당 이닝의 공격이 끝나고 공수가 교대됩니다."},
+    {q:"주자가 베이스에 꽉 차 있는 상황(1루, 2루, 3루에 모두 주자)을 뜻하는 야구 용어는?",opts:["노아웃","투아웃","만루","잔루"],ans:2,ex:"1, 2, 3루에 주자가 모두 차 있는 상태를 '베이스가 가득 찼다'는 뜻으로 만루(滿壘)라고 부릅니다."},
+    {q:"야구 경기에서 정식으로 인정되는 일반적인 이닝 수는 총 몇 회까지일까요? (연장전 제외)",opts:["5회","7회","9회","11회"],ans:2,ex:"프로야구 정규 경기는 기본적으로 9회까지 진행되며, 9회말까지 승부가 나지 않으면 연장전에 돌입합니다."},
+    {q:"타자가 친 공이 파울라인 바깥쪽으로 떨어지거나 관중석으로 들어갔을 때 선언되는 것은?",opts:["안타","파울 (Foul)","볼넷","삼진"],ans:1,ex:"규정된 흰색 파울라인 바깥으로 공이 가거나 관중석으로 들어가면 파울이 됩니다."},
+    {q:"투수가 던진 볼(Ball)이 몇 개가 쌓이면 타자는 공을 치지 않고도 자동으로 1루까지 걸어 나갈 수 있을까요?",opts:["3개","4개","5개","6개"],ans:1,ex:"투수가 스트라이크 존을 벗어나는 '볼'을 4개 던지면 타자는 '볼넷(포볼)'으로 출루하게 됩니다."},
+    {q:"주자가 투수의 틈을 노려 다음 베이스로 달려서 세이프되는 플레이를 무엇이라고 할까요?",opts:["도루","태그아웃","포스아웃","홈인"],ans:0,ex:"투수가 공을 던지는 타이밍을 빼앗아 주자가 스스로 다음 베이스로 달려서 살아남는 것을 도루(Steal)라고 합니다."},
+    {q:"수비 시 투수가 던진 공을 전문적으로 받아내며, 홈 플레이트를 지키는 포지션은?",opts:["포수","유격수","좌익수","1루수"],ans:0,ex:"투수와 마주 보고 앉아 투수가 던지는 공을 받으며 경기 전체의 수비를 지휘하는 포지션을 포수(Catcher)라고 합니다."}
+  ],
+  medium: [
+    {q:"주자 1루 상황에서 타자가 땅볼을 쳤을 때, 수비수가 주자를 태그하지 않고 베이스만 밟아도 아웃이 되는 규칙은?",opts:["태그아웃 (Tag Out)","포스아웃 (Force Out)","어필아웃 (Appeal Out)","인터피어 (Interference)"],ans:1,ex:"타자가 공을 치는 순간 기존 주자는 뒷주자에게 베이스를 비워줘야 하는 '의무 진루 상황(Force 상황)'이 됩니다. 이 상황에서는 수비수가 베이스만 밟아도 아웃이 성립됩니다."},
+    {q:"투수가 투구 동작 중 기만행위를 하거나 규칙을 위반했을 때 선언되며, 모든 주자가 한 베이스씩 진루하게 되는 것은?",opts:["보크 (Balk)","와일드 피치 (Wild Pitch)","패스트 볼 (Passed Ball)","이닝 이터 (Inning Eater)"],ans:0,ex:"루상에 주자가 있을 때 투수가 규칙을 위반하면 '보크'가 선언되며, 베이스 위의 모든 주자는 패널티 없이 한 베이스씩 진루합니다."},
+    {q:"노아웃 또는 1아웃 상황에서 주자 1,2루 또는 만루일 때, 심판이 타자에게 곧바로 아웃을 선언하는 규칙은?",opts:["인필드 플라이 (Infield Fly)","그라운드 룰 더블 (Ground Rule Double)","희생 플라이 (Sacrifice Fly)","라인 드라이브 (Line Drive)"],ans:0,ex:"수비수가 일부러 공을 떨어뜨려 병살을 유도하는 기만 수비를 막고 주자를 보호하기 위한 규칙입니다."},
+    {q:"투수의 기록 중 '퀄리티 스타트(Quality Start)'의 정확한 기준은?",opts:["선발 투수가 5이닝 이상 던지며 3자책점 이하","선발 투수가 6이닝 이상 던지며 3자책점 이하","선발 투수가 6이닝 이상 던지며 2자책점 이하","선발 투수가 7이닝 이상 던지며 4자책점 이하"],ans:1,ex:"선발 투수가 제 역할을 다했는지를 평가하는 지표로, '6이닝 이상, 3자책점 이하'가 기준입니다."},
+    {q:"2스트라이크 이후 타자가 헛스윙을 했으나 포수가 공을 잡지 못했을 때, 타자가 1루로 뛸 수 있는 이 상황은?",opts:["스트라이크 아웃 낫아웃 (Dropped Third Strike)","파울 팁 (Foul Tip)","체크 스윙 (Check Swing)","텍사스 히트 (Texas Hit)"],ans:0,ex:"제3스트라이크를 포수가 포구하지 못한 경우, 노아웃이나 1아웃에 1루에 주자가 없거나, 2아웃일 때는 주자 유무와 상관없이 타자가 1루로 달릴 수 있습니다."},
+    {q:"우천 취소 등으로 경기가 중단될 때 정식 경기로 인정받으려면 최소 몇 회까지 완료되어야 할까요?",opts:["4회말 종료 후","5회말 종료 후","6회말 종료 후","7회말 종료 후"],ans:1,ex:"야구에서 우천 취소 등으로 경기가 중간에 끝날 때 정식 경기로 인정받으려면 이닝의 과반인 '5회'가 채워져야 합니다."},
+    {q:"타자가 친 공이 외야 워닝 트랙에 맞고 튕겨서 담장을 넘어 관중석으로 들어갔을 때의 판정은?",opts:["홈런 - 홈까지 진루","인정 2루타 - 2루까지 진루","파울 - 다시 타석으로 복귀","인플레이 - 계속 주행"],ans:1,ex:"바운드된 공이 담장을 넘어가면 '인정 2루타(Ground Rule Double)'가 선언되어 타자와 주자들은 모두 2개의 베이스를 진루하게 됩니다."},
+    {q:"야구 기록에서 '수비율(Fielding Percentage)'을 계산할 때 포함되지 않는 요소는?",opts:["자살 (Putouts)","보살 (Assists)","실책 (Errors)","포일 (Passed Balls)"],ans:3,ex:"수비율 공식은 (자살+보살)/(자살+보살+실책)으로 계산합니다. 포일은 별도 집계되며 수비율 공식에 포함되지 않습니다."},
+    {q:"타자가 안타로 출루한 뒤 팀원들의 연속 안타 없이 도루, 폭투, 희생플라이 등으로 득점하는 플레이는?",opts:["득점권 빈타","제조업 득점","루징 런 (Losing Run)","매뉴팩처드 런 (Manufactured Run)"],ans:3,ex:"타자가 안타로 출루한 뒤 팀원들의 연속 안타 없이 오롯이 득점해 내는 플레이를 'Manufactured run(제조된 득점)'이라 부릅니다."},
+    {q:"수비 시 유격수(Shortstop)의 공식 포지션 번호는 몇 번일까요?",opts:["4번","5번","6번","7번"],ans:2,ex:"야구 포지션 번호는 투수(1)-포수(2)-1루수(3)-2루수(4)-3루수(5)-유격수(6)-좌익수(7)-중견수(8)-우익수(9) 순서입니다."}
+  ],
+  hard: [
+    {q:"야구 규칙상 체크 스윙 여부를 판단하는 가장 정확한 기준은?",opts:["배트의 헤드가 홈플레이트를 완전히 통과했는가","타자의 손목이 완전히 꺾였는가","심판이 보기에 타자가 공을 치려는 '의사'가 있었는가","배트가 타자의 몸보다 앞으로 나왔는가"],ans:2,ex:"손목 회전이나 배트 위치는 심판이 그 '의사'를 판단하기 위한 참고 자료일 뿐, 최종 결정은 심판의 주관적 판단에 따릅니다."},
+    {q:"2아웃 주자 3루, 타자가 땅볼로 1루 포스아웃. 그 전에 3루 주자가 홈을 밟았다면 득점은 인정될까요?",opts:["타자 주자 아웃 전에 홈을 밟았으므로 득점 인정","타자 주자가 포스아웃되어 이닝이 끝났으므로 득점 불인정","홈 팀 공격일 때만 인정","비디오 판독으로 0.5점만 인정"],ans:1,ex:"야구 규칙상 제3아웃이 포스 아웃 상황으로 결정되면, 루상의 주자가 홈을 먼저 밟았더라도 득점은 무조건 취소됩니다."},
+    {q:"타자가 피하지 않고 배트를 쥔 손(손가락)에 공이 맞았을 때 심판의 판정은?",opts:["몸에 맞는 공(데드볼)으로 걸어 나간다","배트의 일부로 간주하여 파울이다","스트라이크 존 안이면 스트라이크","타자가 피하지 않았으므로 스트라이크"],ans:0,ex:"손과 손가락은 완전히 타자의 몸으로 간주합니다. '손가락은 배트의 일부'라는 말은 흔히 퍼진 오해입니다."},
+    {q:"야수의 송구가 덕아웃으로 들어갔을 때, 주자들에게 부여되는 안전 진루권의 기준 시점과 개수는?",opts:["볼데드 - 현재 베이스에서 정지","송구 시점 기준 안전 진루권 2개","폭투와 같으므로 안전 진루권 1개","관중석이 아니므로 인플레이 계속"],ans:1,ex:"야수가 던진 공이 덕아웃 같은 볼데드 지역으로 들어가면, 송구 시점(Release 시점) 기준으로 모든 주자에게 안전 진루권 2개가 주어집니다."},
+    {q:"2스트라이크 상황에서 번트를 댄 공이 파울이 되었을 때 타자는?",opts:["일반 파울과 같으므로 다시 타격 가능","볼카운트 변화 없이 재투구","쓰리번트 실패로 삼진 아웃","아웃되지 않지만 주자 귀루"],ans:2,ex:"투스트라이크 이후에 번트를 대서 파울이 되면 '쓰리번트 실패'라 부르며 타자는 곧바로 삼진 아웃 처리됩니다."},
+    {q:"수비수가 태그하려 할 때 주자가 기준선에서 양옆으로 몇 피트 이상 벗어나면 자동 아웃될까요?",opts:["홈플레이트 기준 반경 5m","양옆으로 3피트(약 91.4cm)","직선 도로에서 2m 이상","심판의 주관적 판단"],ans:1,ex:"수비수가 공을 쥐고 주자를 '태그'하려는 순간, 주자가 주로에서 양옆으로 3피트(약 91.4cm) 이상 벗어나 도망치면 자동으로 아웃됩니다."},
+    {q:"내야수의 글러브에 맞고 굴절된 공을 외야수가 땅에 닿기 전에 잡아냈을 때의 판정은?",opts:["이미 내야수 글러브에 맞았으므로 안타","수비수 몸에 맞고 뜬 공을 잡았으므로 플라이 아웃","수비수 두 명이 만졌으므로 반칙, 1루 안전 진루","인정 2루타로 처리"],ans:1,ex:"타구가 땅이나 담장, 심판에게 닿지 않았다면, 최초 수비수의 몸에 맞고 튕겨 나간 공을 다른 수비수가 땅에 떨어지기 전에 잡아내도 정상적인 플라이 아웃으로 인정됩니다."},
+    {q:"다음 중 투수의 기록에서 '자책점(Earned Run)'으로 기록되는 상황은?",opts:["포수 실책 후 해당 타자가 홈런을 쳤을 때","야수의 포구 실책으로 출루한 주자가 홈을 밟았을 때","투수 본인의 악송구(실책)로 보낸 주자가 적시타로 득점했을 때","투수가 볼넷과 안타로 주자를 내보낸 뒤 정당한 적시타를 맞았을 때"],ans:3,ex:"자책점은 '수비의 실수(실책, 포일 등) 없이 투수가 정당하게 내준 점수'를 뜻합니다. ④번은 순수하게 투수의 투구로 주자를 내보내고 안타를 맞아 실점했으므로 투수의 자책점입니다."},
+    {q:"KBO 리그 규정상, 한 경기(9이닝 기준)에 감독이 요청할 수 있는 공격 측 타임의 횟수 제한은?",opts:["제한 없음","경기당 총 2회","경기당 총 3회","매 이닝당 1회씩 총 9회"],ans:2,ex:"KBO 리그 규정상 정규 이닝(9이닝) 동안 공격 측 작전 타임은 팀당 총 3회로 제한됩니다. 연장전에 돌입하면 추가로 1회가 더 부여됩니다."},
+    {q:"야구 전광판에 표시되는 영문 약자 중 'E'가 뜻하는 것은?",opts:["경기 시간 (Elapsed Time)","안타 (Earned Hit)","실책 (Error)","이닝 (Inning)"],ans:2,ex:"야구 전광판 전면에는 보통 R(득점), H(안타), E(실책), B(볼넷) 순서로 경기의 누적 기록이 표시됩니다."}
+  ]
+};
+
+const QUIZ_REWARD = {easy: 100000, medium: 300000, hard: 500000};
+const QUIZ_LABEL  = {easy: '🟢 초급', medium: '🟡 중급', hard: '🔴 상급'};
+const QUIZ_COLOR  = {easy: '#34c759', medium: '#ff9f0a', hard: '#ff3b30'};
+
+let quizState = {
+  level: null, questions: [], idx: 0,
+  correct: 0, wrong: 0, totalGain: 0, answered: false
+};
+
+// ── 퀴즈 시작 ─────────────────────────────────────────
+function startQuiz(level){
+  if(!currentUser){
+    document.getElementById('quiz-login-msg').style.display='block';
+    showToast('로그인 후 퀴즈를 풀 수 있습니다','error');
+    return;
+  }
+  quizState = {level, questions:[...QUIZ_DATA[level]], idx:0, correct:0, wrong:0, totalGain:0, answered:false};
+  document.getElementById('quiz-select').style.display='none';
+  document.getElementById('quiz-end').style.display='none';
+  document.getElementById('quiz-play').style.display='block';
+  const badge = document.getElementById('quiz-level-badge');
+  badge.textContent = QUIZ_LABEL[level];
+  badge.style.background = QUIZ_COLOR[level]+'22';
+  badge.style.color = QUIZ_COLOR[level];
+  renderQuestion();
+}
+
+function renderQuestion(){
+  const {questions, idx} = quizState;
+  const q = questions[idx];
+  document.getElementById('quiz-qnum').textContent = idx+1;
+  document.getElementById('quiz-progress-bar').style.width = ((idx+1)/10*100)+'%';
+  document.getElementById('quiz-question').textContent = `Q${idx+1}. ${q.q}`;
+  document.getElementById('quiz-result').style.display='none';
+  quizState.answered = false;
+  updateScoreBadge();
+
+  const optsEl = document.getElementById('quiz-options');
+  optsEl.innerHTML = q.opts.map((opt, i) => `
+    <button onclick="selectAnswer(${i})" style="width:100%;text-align:left;padding:14px 18px;background:var(--surface2);border:2px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--fb);font-size:14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px;" onmouseover="if(!this.disabled)this.style.borderColor='var(--accent)'" onmouseout="if(!this.disabled&&!this.dataset.state)this.style.borderColor='var(--border)'">
+      <span style="width:26px;height:26px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">${['①','②','③','④'][i]}</span>
+      ${opt}
+    </button>`).join('');
+}
+
+function updateScoreBadge(){
+  const reward = QUIZ_REWARD[quizState.level];
+  const gain = quizState.totalGain;
+  const el = document.getElementById('quiz-score-badge');
+  el.textContent = (gain>=0?'+':'') + gain.toLocaleString('ko-KR') + '원';
+  el.style.color = gain>0?'#34c759':gain<0?'#ff3b30':'var(--text2)';
+}
+
+function selectAnswer(chosen){
+  if(quizState.answered) return;
+  quizState.answered = true;
+  const q = quizState.questions[quizState.idx];
+  const correct = chosen === q.ans;
+  const reward = QUIZ_REWARD[quizState.level];
+  const delta = correct ? reward : -reward;
+  quizState.totalGain += delta;
+  if(correct) quizState.correct++; else quizState.wrong++;
+
+  // 보기 버튼 색상 처리
+  const btns = document.getElementById('quiz-options').querySelectorAll('button');
+  btns.forEach((btn, i) => {
+    btn.disabled = true;
+    btn.style.cursor = 'default';
+    if(i === q.ans){
+      btn.style.borderColor = '#34c759';
+      btn.style.background = '#34c75922';
+      btn.querySelector('span').style.background = '#34c759';
+      btn.querySelector('span').style.color = '#fff';
+    } else if(i === chosen && !correct){
+      btn.style.borderColor = '#ff3b30';
+      btn.style.background = '#ff3b3022';
+      btn.querySelector('span').style.background = '#ff3b30';
+      btn.querySelector('span').style.color = '#fff';
+    }
+  });
+
+  // 결과 표시
+  const resultEl = document.getElementById('quiz-result');
+  const titleEl = document.getElementById('quiz-result-title');
+  const explainEl = document.getElementById('quiz-result-explain');
+  resultEl.style.display='block';
+  resultEl.style.background = correct ? '#34c75918' : '#ff3b3018';
+  resultEl.style.border = `1px solid ${correct?'#34c759':'#ff3b30'}40`;
+
+  titleEl.innerHTML = correct
+    ? `✅ 정답! <span style="font-family:var(--fm);color:#34c759">+${reward.toLocaleString('ko-KR')}원 획득</span>`
+    : `❌ 오답! <span style="font-family:var(--fm);color:#ff3b30">-${reward.toLocaleString('ko-KR')}원 차감</span> · 정답: ${['①','②','③','④'][q.ans]} ${q.opts[q.ans]}`;
+  explainEl.textContent = '📖 ' + q.ex;
+
+  updateScoreBadge();
+
+  // 마지막 문제면 다음 버튼 텍스트 변경
+  if(quizState.idx >= 9){
+    document.getElementById('quiz-next-btn').textContent = '결과 보기 🏁';
+  }
+}
+
+function nextQuestion(){
+  if(quizState.idx >= 9){ endQuiz(); return; }
+  quizState.idx++;
+  renderQuestion();
+  document.getElementById('quiz-play').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+async function endQuiz(){
+  const {level, correct, wrong, totalGain} = quizState;
+  document.getElementById('quiz-play').style.display='none';
+
+  // Firestore에 반영
+  if(currentUser && totalGain !== 0){
+    try{
+      const pf = await getUserDoc();
+      const newCash = (pf.cash||0) + totalGain;
+      const now = new Date().toLocaleString('sv').replace('T',' ').slice(0,16);
+      const histEntry = {
+        time: now,
+        stockId: `퀴즈(${QUIZ_LABEL[level].replace(/[🟢🟡🔴]/g,'').trim()})`,
+        action: totalGain >= 0 ? 'quiz_win' : 'quiz_lose',
+        qty: correct + wrong,
+        price: QUIZ_REWARD[level],
+        total: Math.abs(totalGain),
+        memo: `정답 ${correct}개 / 오답 ${wrong}개`
+      };
+      const history = [...(pf.history||[]), histEntry].slice(-100);
+      await updateDoc(doc(db,'users',currentUser.uid), {cash: newCash, history});
+      loadPortfolioHeader();
+    }catch(e){ console.error('퀴즈 결산 오류', e); }
+  }
+
+  // 종료 화면
+  const endEl = document.getElementById('quiz-end');
+  endEl.style.display='block';
+  const win = totalGain >= 0;
+  document.getElementById('quiz-end-emoji').textContent = correct===10?'🏆':win?'🎉':'😢';
+  document.getElementById('quiz-end-title').textContent = correct===10?'만점 달성!':win?'수익 실현!':'아쉽네요...';
+  document.getElementById('quiz-end-sub').textContent =
+    `${QUIZ_LABEL[level]} 퀴즈 · 정답 ${correct}개 / 오답 ${wrong}개`;
+  const amtEl = document.getElementById('quiz-end-amount');
+  amtEl.textContent = (totalGain>=0?'+':'') + totalGain.toLocaleString('ko-KR') + '원';
+  amtEl.style.color = totalGain>0?'#34c759':totalGain<0?'#ff3b30':'var(--text2)';
+  document.getElementById('quiz-end-detail').textContent =
+    `문제당 ${QUIZ_REWARD[level].toLocaleString('ko-KR')}원 × 정답${correct} - 오답${wrong}`;
+}
+
+function goHome(){
+  document.getElementById('quiz-end').style.display='none';
+  document.getElementById('quiz-select').style.display='block';
+  // 시장 탭으로 이동
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-market').classList.add('active');
+  document.querySelector('.tab-btn').classList.add('active');
+}
+
 // ── window 에 onclick용 함수 노출 ────────────────────
 window.openAuthModal=openAuthModal;
 window.closeAuthModal=closeAuthModal;
@@ -1066,6 +1357,11 @@ window.closeNicknameModal=closeNicknameModal;
 window.doChangeNickname=doChangeNickname;
 window.searchPlayer=searchPlayer;
 window.clearSearch=clearSearch;
+window.startQuiz=startQuiz;
+window.selectAnswer=selectAnswer;
+window.nextQuestion=nextQuestion;
+window.endQuiz=endQuiz;
+window.goHome=goHome;
 
 // ── 초기화 ────────────────────────────────────────────
 loadStocks();
