@@ -347,8 +347,6 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-
             <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">야구 기초 규칙</div>
             <div style="font-size:18px;font-weight:700;color:#34c759;">±100,000원</div>
             <div style="font-size:10px;color:var(--text3);margin-top:4px;">문제당</div>
-            <div id="quiz-remain-hard" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
-            <div id="quiz-remain-medium" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
             <div id="quiz-remain-easy" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
           </div>
           <div onclick="startQuiz('medium')" class="quiz-diff-card" style="background:var(--surface2);border:2px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#ff9f0a';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
@@ -357,6 +355,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-
             <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">심화 규칙·기록</div>
             <div style="font-size:18px;font-weight:700;color:#ff9f0a;">±300,000원</div>
             <div style="font-size:10px;color:var(--text3);margin-top:4px;">문제당</div>
+            <div id="quiz-remain-medium" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
           </div>
           <div onclick="startQuiz('hard')" class="quiz-diff-card" style="background:var(--surface2);border:2px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#ff3b30';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
             <div style="font-size:36px;margin-bottom:10px;">🔴</div>
@@ -364,6 +363,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-
             <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">고급 규칙·판정</div>
             <div style="font-size:18px;font-weight:700;color:#ff3b30;">±500,000원</div>
             <div style="font-size:10px;color:var(--text3);margin-top:4px;">문제당</div>
+            <div id="quiz-remain-hard" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
           </div>
         </div>
         <div id="quiz-login-msg" style="display:none;text-align:center;color:var(--text2);font-size:13px;padding:12px;background:var(--surface2);border-radius:10px;max-width:400px;margin:0 auto;cursor:pointer;" onclick="openAuthModal('login')">🔒 로그인하면 퀴즈 상금이 실제로 지급됩니다</div>
@@ -1222,8 +1222,9 @@ async function startQuiz(level){
 function renderQuestion(){
   const {questions, idx} = quizState;
   const q = questions[idx];
-  document.getElementById('quiz-qnum').textContent = idx+1;
-  document.getElementById('quiz-progress-bar').style.width = ((idx+1)/10*100)+'%';
+  const totalQ = quizState.questions.length;
+  document.getElementById('quiz-qnum').textContent = `${idx+1}/${totalQ}`;
+  document.getElementById('quiz-progress-bar').style.width = ((idx+1)/totalQ*100)+'%';
   document.getElementById('quiz-question').textContent = `Q${idx+1}. ${q.q}`;
   document.getElementById('quiz-result').style.display='none';
   quizState.answered = false;
@@ -1303,13 +1304,13 @@ function selectAnswer(chosen){
   updateScoreBadge();
 
   // 마지막 문제면 다음 버튼 텍스트 변경
-  if(quizState.idx >= 9){
+  if(quizState.idx >= quizState.questions.length-1){
     document.getElementById('quiz-next-btn').textContent = '결과 보기 🏁';
   }
 }
 
 function nextQuestion(){
-  if(quizState.idx >= 9){ endQuiz(); return; }
+  if(quizState.idx >= quizState.questions.length-1){ endQuiz(); return; }
   quizState.idx++;
   renderQuestion();
   document.getElementById('quiz-play').scrollIntoView({behavior:'smooth',block:'start'});
