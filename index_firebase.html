@@ -347,6 +347,9 @@ header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.95);backdrop-
             <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">야구 기초 규칙</div>
             <div style="font-size:18px;font-weight:700;color:#34c759;">±100,000원</div>
             <div style="font-size:10px;color:var(--text3);margin-top:4px;">문제당</div>
+            <div id="quiz-remain-hard" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
+            <div id="quiz-remain-medium" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
+            <div id="quiz-remain-easy" style="font-size:11px;color:var(--text3);margin-top:6px;"></div>
           </div>
           <div onclick="startQuiz('medium')" class="quiz-diff-card" style="background:var(--surface2);border:2px solid var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#ff9f0a';this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
             <div style="font-size:36px;margin-bottom:10px;">🟡</div>
@@ -590,6 +593,8 @@ function switchTab(tab,btn){
     if(document.getElementById('quiz-play').style.display==='none'&&
        document.getElementById('quiz-end').style.display==='none'){
       document.getElementById('quiz-select').style.display='block';
+      // 남은 문제 수 업데이트
+      if(currentUser) updateRemainingCount();
     }
   }
 }
@@ -1186,13 +1191,24 @@ let quizState = {
 };
 
 // ── 퀴즈 시작 ─────────────────────────────────────────
-function startQuiz(level){
+async function startQuiz(level){
   if(!currentUser){
     document.getElementById('quiz-login-msg').style.display='block';
     showToast('로그인 후 퀴즈를 풀 수 있습니다','error');
     return;
   }
-  quizState = {level, questions:[...QUIZ_DATA[level]], idx:0, correct:0, wrong:0, totalGain:0, answered:false};
+  // Firestore에서 이미 푼 문제 인덱스 불러오기
+  const pf = await getUserDoc();
+  const solvedKey = `quiz_solved_${level}`;
+  const solved = pf[solvedKey] || [];
+  // 안 푼 문제만 필터링
+  let remaining = QUIZ_DATA[level].map((q,i)=>({...q, _origIdx:i})).filter(q=>!solved.includes(q._origIdx));
+  // 다 풀었으면 시작 불가
+  if(remaining.length === 0){
+    showQuizExhausted(level);
+    return;
+  }
+  quizState = {level, questions:remaining, idx:0, correct:0, wrong:0, totalGain:0, answered:false, solvedThisRound:[]};
   document.getElementById('quiz-select').style.display='none';
   document.getElementById('quiz-end').style.display='none';
   document.getElementById('quiz-play').style.display='block';
@@ -1238,6 +1254,20 @@ function selectAnswer(chosen){
   const delta = correct ? reward : -reward;
   quizState.totalGain += delta;
   if(correct) quizState.correct++; else quizState.wrong++;
+  // 푼 문제 원본 인덱스 즉시 Firestore 저장
+  const origIdx = quizState.questions[quizState.idx]._origIdx;
+  if(origIdx !== undefined){
+    quizState.solvedThisRound.push(origIdx);
+    // 탭 이탈해도 기록 유지되도록 즉시 저장
+    if(currentUser){
+      getUserDoc().then(pf=>{
+        const solvedKey = `quiz_solved_${quizState.level}`;
+        const prevSolved = pf[solvedKey] || [];
+        const newSolved = [...new Set([...prevSolved, origIdx])];
+        updateDoc(doc(db,'users',currentUser.uid), {[solvedKey]: newSolved});
+      }).catch(e=>console.error('퀴즈 즉시 저장 오류',e));
+    }
+  }
 
   // 보기 버튼 색상 처리
   const btns = document.getElementById('quiz-options').querySelectorAll('button');
@@ -1290,22 +1320,31 @@ async function endQuiz(){
   document.getElementById('quiz-play').style.display='none';
 
   // Firestore에 반영
-  if(currentUser && totalGain !== 0){
+  if(currentUser){
     try{
       const pf = await getUserDoc();
       const newCash = (pf.cash||0) + totalGain;
       const now = new Date().toLocaleString('sv').replace('T',' ').slice(0,16);
-      const histEntry = {
-        time: now,
-        stockId: `퀴즈(${QUIZ_LABEL[level].replace(/[🟢🟡🔴]/g,'').trim()})`,
-        action: totalGain >= 0 ? 'quiz_win' : 'quiz_lose',
-        qty: correct + wrong,
-        price: QUIZ_REWARD[level],
-        total: Math.abs(totalGain),
-        memo: `정답 ${correct}개 / 오답 ${wrong}개`
-      };
-      const history = [...(pf.history||[]), histEntry].slice(-100);
-      await updateDoc(doc(db,'users',currentUser.uid), {cash: newCash, history});
+      // 푼 문제 인덱스 저장
+      const solvedKey = `quiz_solved_${level}`;
+      const prevSolved = pf[solvedKey] || [];
+      const newSolved = [...new Set([...prevSolved, ...(quizState.solvedThisRound||[])])];
+      const updateData = {[solvedKey]: newSolved};
+      if(totalGain !== 0){
+        const histEntry = {
+          time: now,
+          stockId: `퀴즈(${QUIZ_LABEL[level].replace(/[🟢🟡🔴]/g,'').trim()})`,
+          action: totalGain >= 0 ? 'quiz_win' : 'quiz_lose',
+          qty: correct + wrong,
+          price: QUIZ_REWARD[level],
+          total: Math.abs(totalGain),
+          memo: `정답 ${correct}개 / 오답 ${wrong}개`
+        };
+        const history = [...(pf.history||[]), histEntry].slice(-100);
+        updateData.cash = newCash;
+        updateData.history = history;
+      }
+      await updateDoc(doc(db,'users',currentUser.uid), updateData);
       loadPortfolioHeader();
     }catch(e){ console.error('퀴즈 결산 오류', e); }
   }
@@ -1335,6 +1374,59 @@ function goHome(){
   document.querySelector('.tab-btn').classList.add('active');
 }
 
+
+async function updateRemainingCount(){
+  if(!currentUser) return;
+  try{
+    const pf = await getUserDoc();
+    ['easy','medium','hard'].forEach(level=>{
+      const solved = pf[`quiz_solved_${level}`]||[];
+      const remaining = 10 - solved.length;
+      const el = document.getElementById(`quiz-remain-${level}`);
+      if(el){
+        if(remaining > 0){
+          el.textContent = `남은 문제 ${remaining}개`;
+          el.style.color = 'var(--text3)';
+        } else {
+          el.textContent = '이용 가능한 문제를 소진했습니다';
+          el.style.color = 'var(--red)';
+        }
+      }
+    });
+  }catch(e){}
+}
+
+
+function showQuizExhausted(level){
+  document.getElementById('quiz-select').style.display='none';
+  document.getElementById('quiz-play').style.display='none';
+  document.getElementById('quiz-end').style.display='none';
+  // 소진 안내 화면 동적 생성
+  let el = document.getElementById('quiz-exhausted');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'quiz-exhausted';
+    document.getElementById('quiz-select').parentElement.appendChild(el);
+  }
+  el.style.display='block';
+  el.innerHTML = `
+    <div style="text-align:center;max-width:480px;margin:0 auto;padding:20px;">
+      <div style="font-size:56px;margin-bottom:16px;">🚫</div>
+      <div style="font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:10px;">이용 가능한 문제를 소진했습니다</div>
+      <div style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:28px;">
+        ${QUIZ_LABEL[level]} 퀴즈의 모든 문제를 이미 풀었습니다.<br>
+        새로운 문제가 추가될 때까지 기다려주세요.
+      </div>
+      <button onclick="backToQuizSelect()" style="padding:13px 32px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-family:var(--fd);font-size:15px;font-weight:600;cursor:pointer;">← 난이도 선택으로 돌아가기</button>
+    </div>`;
+}
+
+function backToQuizSelect(){
+  const el = document.getElementById('quiz-exhausted');
+  if(el) el.style.display='none';
+  document.getElementById('quiz-select').style.display='block';
+}
+
 // ── window 에 onclick용 함수 노출 ────────────────────
 window.openAuthModal=openAuthModal;
 window.closeAuthModal=closeAuthModal;
@@ -1362,6 +1454,8 @@ window.selectAnswer=selectAnswer;
 window.nextQuestion=nextQuestion;
 window.endQuiz=endQuiz;
 window.goHome=goHome;
+window.updateRemainingCount=updateRemainingCount;
+window.backToQuizSelect=backToQuizSelect;
 
 // ── 초기화 ────────────────────────────────────────────
 loadStocks();
